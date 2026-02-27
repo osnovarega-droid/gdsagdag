@@ -619,7 +619,11 @@ class App(customtkinter.CTk):
 
     def _action_start_selected(self):
         self._run_action_async(self.accounts_control.start_selected)
-
+        self.control_frame.auto_move_after_4_cs2(
+            delay=35,
+            callback=self.trigger_make_lobbies_and_search_button,
+            cancel_check=self.main_menu._is_cancelled,
+        )
     def _action_select_first_4(self):
         non_farmed = [acc for acc in self.account_manager.accounts if not self.accounts_list.is_farmed_account(acc)]
         target = non_farmed[:4]
