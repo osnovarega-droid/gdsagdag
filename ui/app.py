@@ -104,6 +104,7 @@ class App(customtkinter.CTk):
         self.account_badges = {}
         self.sdr_regions = {}
         self._level_file_mtime = None
+        self.lobby_buttons = {}
         
         self._build_srt_state()
         self._load_region_json_if_exists()
@@ -400,7 +401,7 @@ class App(customtkinter.CTk):
 
         lobby_buttons = [
             ("Make Lobbies", self._action_make_lobbies, BG_CARD_ALT),
-            ("Make Lobbes & Search Game", self._action_make_lobbies_and_search, ACCENT_BLUE),
+            ("Make Lobbies & Search Game", self._action_make_lobbies_and_search, ACCENT_BLUE),
             ("Disband lobbies", self._action_disband_lobbies, BG_CARD_ALT),
             ("Get level", self._action_try_get_level, BG_CARD_ALT),
             ("Shuffle Lobbies", self._action_shuffle_lobbies, BG_CARD_ALT),
@@ -408,7 +409,17 @@ class App(customtkinter.CTk):
         ]
         for idx, (text, cmd, color) in enumerate(lobby_buttons):
             r, c = divmod(idx, 2)
-            customtkinter.CTkButton(lobby, text=text, command=cmd, fg_color=color, hover_color=BG_BORDER, height=32, font=customtkinter.CTkFont(size=11, weight="bold")).grid(row=r + 1, column=c, padx=6, pady=4, sticky="ew")
+            btn = customtkinter.CTkButton(
+                lobby,
+                text=text,
+                command=cmd,
+                fg_color=color,
+                hover_color=BG_BORDER,
+                height=32,
+                font=customtkinter.CTkFont(size=11, weight="bold"),
+            )
+            btn.grid(row=r + 1, column=c, padx=6, pady=4, sticky="ew")
+            self.lobby_buttons[text] = btn
 
         self._update_accounts_info()
         return frame
@@ -658,6 +669,25 @@ class App(customtkinter.CTk):
     def _action_make_lobbies_and_search(self):
         self._run_action_async(self.main_menu.make_lobbies_and_search_game)
 
+    def trigger_make_lobbies_and_search_button(self):
+        button = self.lobby_buttons.get("Make lobbies & search game")
+        if button is None:
+            for text, candidate in self.lobby_buttons.items():
+                if text.strip().lower() == "make lobbies & search game":
+                    button = candidate
+                    break
+        if button is None:
+            self.log_manager.add_log("❌ UI button 'Make lobbies & search game' not found in app.py")
+            return False
+
+        try:
+            button.invoke()
+            self.log_manager.add_log("✅ AUTO: invoke() on app.py button 'Make lobbies & search game'")
+            return True
+        except Exception as error:
+            self.log_manager.add_log(f"❌ Failed to invoke app.py button: {error}")
+            return False
+            
     def _action_make_lobbies(self):
         self._run_action_async(self.main_menu.make_lobbies)
 
