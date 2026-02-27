@@ -10,7 +10,7 @@ import win32process
 import win32con
 import time
 import threading
-
+import keyboard
 from Managers.AccountsManager import AccountManager
 from Managers.LogManager import LogManager
 from Managers.SettingsManager import SettingsManager
@@ -268,14 +268,21 @@ class ControlFrame(customtkinter.CTkFrame):
         else:
             print(f"❌ SRT.exe не найден: {srt_path}")
 
-    def auto_move_after_4_cs2(self, delay=40, callback=None, cancel_check=None):
+    def auto_move_after_4_cs2(self, delay=5, callback=None, cancel_check=None):
         """Ждёт 4 окна CS2, двигает их, вызывает callback"""
         threading.Thread(
             target=self._wait_4_cs2_and_move,
             args=(delay, callback, cancel_check),
             daemon=True,
         ).start()
-
+    def _press_ctrl_q(self):
+        try:
+            keyboard.press_and_release("ctrl+q")
+            self.logManager.add_log("⌨️ AUTO: Ctrl+Q pressed")
+            return True
+        except Exception as e:
+            self.logManager.add_log(f"⚠️ AUTO: failed to press Ctrl+Q: {e}")
+            return False
     def _wait_4_cs2_and_move(self, delay, callback, cancel_check):
         """Внутренний метод ожидания + перемещения"""
         print("👀 Ожидаю запуск 4 CS2...")
@@ -303,7 +310,7 @@ class ControlFrame(customtkinter.CTkFrame):
 
 
                     self.logManager.add_log("🎯 Move completed")
-
+                    self._press_ctrl_q()
                     if callback:
                         try:
                             if cancel_check and cancel_check():
