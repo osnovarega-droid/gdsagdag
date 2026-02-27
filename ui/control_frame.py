@@ -302,17 +302,7 @@ class ControlFrame(customtkinter.CTkFrame):
                     self.move_all_cs_windows()
 
 
-                    wait_after_move = 5.0
-                    waited = 0.0
-                    step = 0.5
-                    while waited < wait_after_move:
-                        if cancel_check and cancel_check():
-                            self.logManager.add_log("🛑 Auto move отменён")
-                            return
-                        time.sleep(step)
-                        waited += step
-
-                    self.logManager.add_log("🎯 Move completed +5s → запускаю Make lobbies & search game")
+                    self.logManager.add_log("🎯 Move completed")
 
                     if callback:
                         try:
